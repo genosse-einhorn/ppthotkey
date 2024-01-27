@@ -8,6 +8,7 @@ using System.Text;
 using System.Windows.Forms;
 
 using PowerPoint = Microsoft.Office.Interop.PowerPoint;
+using System.Runtime.InteropServices;
 
 namespace PptHotkey
 {
@@ -20,6 +21,18 @@ namespace PptHotkey
         private const int VK_RIGHT = 0x27;
         private const int VK_DOWN = 0x28;
         private const int WM_KEYDOWN = 0x0100;
+
+        private const int SM_CYEDGE = 46;
+
+        [DllImport("user32.dll")]
+        static extern int GetSystemMetrics(int smIndex);
+
+        private static void PadLabelToEdit(Control l)
+        {
+            Padding p = l.Padding;
+            p.Top = GetSystemMetrics(SM_CYEDGE) + 1;
+            l.Padding = p;
+        }
 
         public Form1(KeyboardHooker hooker)
         {
@@ -37,6 +50,9 @@ namespace PptHotkey
                 this.lblKeyboardHookStatus.Text = string.Format("Fehler 0x{0:X}", hooker.ErrorCode);
                 this.lblKeyboardHookStatus.ForeColor = Color.Red;
             }
+
+            PadLabelToEdit(this.label4);
+            PadLabelToEdit(this.label6);
         }
 
         protected override void OnShown(EventArgs e)
